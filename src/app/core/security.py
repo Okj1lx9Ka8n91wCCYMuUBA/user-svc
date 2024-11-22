@@ -29,16 +29,18 @@ def get_password_hash(password: str) -> str:
     return hashed_password
 
 
-async def authenticate_user(username_or_email: str, password: str, db: AsyncSession) -> dict[str, Any] | Literal[False]:
-    if "@" in username_or_email:
-        db_user: dict | None = await crud_users.get(db=db, email=username_or_email, is_deleted=False)
-    else:
-        db_user = await crud_users.get(db=db, username=username_or_email, is_deleted=False)
+async def authenticate_user(identifier: str, password: str, db: AsyncSession) -> dict[str, Any] | Literal[False]:
+    if identifier.isdigit():  # Проверка на ИНН
+        db_user = await crud_users.get(db=db, inn=identifier, is_deleted=False)
+    elif "@" in identifier:  # Проверка на email
+        db_user = await crud_users.get(db=db, email=identifier, is_deleted=False)
+    else:  # Считаем что это username
+        db_user = await crud_users.get(db=db, username=identifier, is_deleted=False)
 
     if not db_user:
         return False
 
-    elif not await verify_password(password, db_user["hashed_password"]):
+    elif not verify_password(password, db_user["hashed_password"]):  # Исправлено здесь
         return False
 
     return db_user

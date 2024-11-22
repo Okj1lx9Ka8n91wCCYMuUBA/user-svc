@@ -26,18 +26,27 @@ async def login_for_access_token(
         form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
         db: Annotated[AsyncSession, Depends(async_get_db)],
 ) -> dict[str, str]:
-    user = await authenticate_user(username_or_email=form_data.username, password=form_data.password, db=db)
+    user = await authenticate_user(identifier=form_data.username, password=form_data.password, db=db)
     if not user:
-        raise UnauthorizedException("Wrong username, email or password.")
+        raise UnauthorizedException("Wrong credentials")
 
+    # Используем id для sub в токене вместо username
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = await create_access_token(data={"sub": user["username"]}, expires_delta=access_token_expires)
+    access_token = await create_access_token(
+        data={"sub": str(user["id"])},
+        expires_delta=access_token_expires
+    )
 
-    refresh_token = await create_refresh_token(data={"sub": user["username"]})
+    refresh_token = await create_refresh_token(data={"sub": str(user["id"])})
     max_age = settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60
 
     response.set_cookie(
-        key="refresh_token", value=refresh_token, httponly=True, secure=True, samesite="Lax", max_age=max_age
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=True,
+        samesite="Lax",
+        max_age=max_age
     )
 
     return {"access_token": access_token, "token_type": "bearer"}
