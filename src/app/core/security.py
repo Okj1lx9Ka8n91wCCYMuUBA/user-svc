@@ -11,6 +11,8 @@ from .config import settings
 from .db.crud_token_blacklist import crud_token_blacklist
 from .schemas import TokenBlacklistCreate, TokenData
 
+from ..core.logger import logging
+
 SECRET_KEY = settings.SECRET_KEY
 ALGORITHM = settings.ALGORITHM
 ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
@@ -40,7 +42,7 @@ async def authenticate_user(identifier: str, password: str, db: AsyncSession) ->
     if not db_user:
         return False
 
-    elif not verify_password(password, db_user["hashed_password"]):  # Исправлено здесь
+    elif not verify_password(password, db_user.get("hashed_password")):  # TODO: set async for production
         return False
 
     return db_user
@@ -101,6 +103,7 @@ async def verify_token(token: str, db: AsyncSession) -> TokenData | None:
 
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        logging.debug(f"Token payload: {payload}")
         username_or_email: str = payload.get("sub")
         if username_or_email is None:
             return None

@@ -4,6 +4,8 @@ from logging.config import fileConfig
 from alembic import context
 from app.core.config import settings
 from app.core.db.database import Base
+from app.models import *
+from app.core.db.token_blacklist import TokenBlacklist
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config

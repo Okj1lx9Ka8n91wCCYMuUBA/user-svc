@@ -33,7 +33,7 @@ async def login_for_access_token(
     # Используем id для sub в токене вместо username
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = await create_access_token(
-        data={"sub": str(user["id"])},
+        data={"sub": str(user.get('username') if user.get('username') else user.get('inn'))},
         expires_delta=access_token_expires
     )
 

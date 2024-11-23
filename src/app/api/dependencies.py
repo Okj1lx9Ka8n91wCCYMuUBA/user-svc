@@ -22,20 +22,35 @@ DEFAULT_PERIOD = settings.DEFAULT_RATE_LIMIT_PERIOD
 
 
 async def get_current_user(
-    token: Annotated[str, Depends(oauth2_scheme)], db: Annotated[AsyncSession, Depends(async_get_db)]
+        token: Annotated[str, Depends(oauth2_scheme)], db: Annotated[AsyncSession, Depends(async_get_db)]
 ) -> dict[str, Any] | None:
     token_data = await verify_token(token, db)
     if token_data is None:
+        logger.error("User not authenticated.")
         raise UnauthorizedException("User not authenticated.")
 
-    if "@" in token_data.username_or_email:
-        user: dict | None = await crud_users.get(db=db, email=token_data.username_or_email, is_deleted=False)
-    else:
-        user = await crud_users.get(db=db, username=token_data.username_or_email, is_deleted=False)
+    # help me debug logging, my mental health depends on u
+    logger.debug(f"Token data: {token_data}")
+    logger.debug(f"Token data type: {type(token_data)}")
+
+    identifier = token_data.username_or_email
+    logger.debug(f"Extracted identifier: {identifier}")
+    logger.debug(f"User {identifier} authenticated.")
+
+    if identifier.isdigit():  # Проверка на ИНН
+        logger.debug("Trying to get user by INN")
+        user = await crud_users.get(db=db, inn=identifier, is_deleted=False)
+    elif "@" in identifier:  # Проверка на email
+        logger.debug("Trying to get user by email")
+        user = await crud_users.get(db=db, email=identifier, is_deleted=False)
+    else:  # Считаем что это username
+        logger.debug("Trying to get user by username")
+        user = await crud_users.get(db=db, username=identifier, is_deleted=False)
 
     if user:
+        logger.debug(f"Found user: {user}")
         return user
-
+    logger.error("User not found.")
     raise UnauthorizedException("User not authenticated.")
 
 
@@ -73,7 +88,8 @@ async def get_current_superuser(current_user: Annotated[dict, Depends(get_curren
 
 
 async def rate_limiter(
-    request: Request, db: Annotated[AsyncSession, Depends(async_get_db)], user: User | None = Depends(get_optional_user)
+        request: Request, db: Annotated[AsyncSession, Depends(async_get_db)],
+        user: User | None = Depends(get_optional_user)
 ) -> None:
     path = sanitize_path(request.url.path)
     if user:
