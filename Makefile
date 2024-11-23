@@ -24,10 +24,10 @@ restart:
 
 
 migrate:
-	docker compose run --rm migrations alembic -c src/alembic.ini upgrade head
+	docker compose exec web alembic upgrade head
 
 makemigrations:
-	docker compose run --rm migrations alembic -c src/alembic.ini revision --autogenerate -m "$(message)"
+	docker compose exec -it web alembic revision --autogenerate -m "message"
 
 downgrade:
-	docker compose run --rm migrations alembic -c src/alembic.ini downgrade -1
+	docker compose exec -it web alembic downgrade $(revision)

@@ -1,22 +1,42 @@
 # schemas/grant_questions.py
 from typing import Annotated
 from uuid import UUID
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, model_validator
+
 
 class GrantQuestionsBase(BaseModel):
-    requested_amount: Annotated[str, Field(examples=["1000000"])]
-    grant_purpose: Annotated[str, Field(examples=["Research and Development"])]
-    prepared_documents: Annotated[str, Field(examples=["Business Plan, Financial Statements"])]
-    patents_or_innovations: Annotated[str, Field(examples=["2 patents pending"])]
-    previous_grants: Annotated[str, Field(examples=["None"])]
-    operational_regions: Annotated[str, Field(examples=["Moscow, St. Petersburg"])]
-    business_size: Annotated[str, Field(examples=["Small"])]
-    project_idea: Annotated[str, Field(examples=["Innovative software solution"])]
-    annual_revenue: Annotated[str, Field(examples=["5000000"])]
-    okved_codes: Annotated[str, Field(examples=["62.01"])]
+    requested_amount: Annotated[str | None, Field(examples=["1000000"])] = None
+    grant_purpose: Annotated[str | None, Field(examples=["Research and Development"])] = None
+    prepared_documents: Annotated[str | None, Field(examples=["Business Plan, Financial Statements"])] = None
+    patents_or_innovations: Annotated[str | None, Field(examples=["2 patents pending"])] = None
+    previous_grants: Annotated[str | None, Field(examples=["None"])] = None
+    operational_regions: Annotated[str | None, Field(examples=["Moscow, St. Petersburg"])] = None
+    business_size: Annotated[str | None, Field(examples=["Small"])] = None
+    project_idea: Annotated[str | None, Field(examples=["Innovative software solution"])] = None
+    annual_revenue: Annotated[str | None, Field(examples=["5000000"])] = None
+    okved_codes: Annotated[str | None, Field(examples=["62.01"])] = None
+
 
 class GrantQuestionsCreate(GrantQuestionsBase):
     model_config = ConfigDict(extra="forbid")
+
+    @model_validator(mode='after')
+    def validate_at_least_one_field(self) -> 'GrantQuestionsCreate':
+        fields = [
+            self.requested_amount,
+            self.grant_purpose,
+            self.prepared_documents,
+            self.patents_or_innovations,
+            self.previous_grants,
+            self.operational_regions,
+            self.business_size,
+            self.project_idea,
+            self.annual_revenue,
+            self.okved_codes
+        ]
+        if not any(fields):
+            raise ValueError("At least one field must be filled")
+        return self
 
 class GrantQuestionsCreateInternal(GrantQuestionsCreate):
     user_uuid: UUID

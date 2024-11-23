@@ -7,20 +7,19 @@ from ..core.db.database import Base
 class GrantQuestions(Base):
     __tablename__ = 'grant_questions'
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True, index=True)  # Используем Mapped и mapped_column
-    user_uuid: Mapped[UUID] = mapped_column(ForeignKey('user.uuid'), index=True)  # Связь с пользователем
-    requested_amount: Mapped[str] = mapped_column(String, index=True)
-    grant_purpose: Mapped[str] = mapped_column(String)
-    prepared_documents: Mapped[str] = mapped_column(String)
-    patents_or_innovations: Mapped[str] = mapped_column(String)
-    previous_grants: Mapped[str] = mapped_column(String)
-    operational_regions: Mapped[str] = mapped_column(String)
-    business_size: Mapped[str] = mapped_column(String)
-    project_idea: Mapped[str] = mapped_column(String)
-    annual_revenue: Mapped[str] = mapped_column(String)
-    okved_codes: Mapped[str] = mapped_column(String)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True, index=True)
+    user_uuid: Mapped[UUID] = mapped_column(ForeignKey('user.uuid'), index=True)
+    requested_amount: Mapped[str | None] = mapped_column(String, nullable=True)
+    grant_purpose: Mapped[str | None] = mapped_column(String, nullable=True)
+    prepared_documents: Mapped[str | None] = mapped_column(String, nullable=True)
+    patents_or_innovations: Mapped[str | None] = mapped_column(String, nullable=True)
+    previous_grants: Mapped[str | None] = mapped_column(String, nullable=True)
+    operational_regions: Mapped[str | None] = mapped_column(String, nullable=True)
+    business_size: Mapped[str | None] = mapped_column(String, nullable=True)
+    project_idea: Mapped[str | None] = mapped_column(String, nullable=True)
+    annual_revenue: Mapped[str | None] = mapped_column(String, nullable=True)
+    okved_codes: Mapped[str | None] = mapped_column(String, nullable=True)
 
     def __init__(self, **kwargs):
-        # Удаляем id из kwargs, если он присутствует
         kwargs.pop('id', None)
         super().__init__(**kwargs)
