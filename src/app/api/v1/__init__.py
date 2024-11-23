@@ -8,6 +8,8 @@ from .tasks import router as tasks_router
 from .tiers import router as tiers_router
 from .users import router as users_router
 from .questions import router as questions
+# from .parsing_results import router as parser
+from .news import router as news_router
 
 router = APIRouter(prefix="/v1")
 router.include_router(login_router)
@@ -18,3 +20,5 @@ router.include_router(tasks_router)
 router.include_router(tiers_router)
 router.include_router(rate_limits_router)
 router.include_router(questions)
+# router.include_router(parser)
+router.include_router(news_router)
