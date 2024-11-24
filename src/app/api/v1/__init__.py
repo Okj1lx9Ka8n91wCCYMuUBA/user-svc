@@ -12,6 +12,7 @@ from .questions import router as questions
 from .news import router as news_router
 from .startup import router as startup
 from .parsed_data.grants import router as grants
+from .docs.passport import router as passport
 
 
 router = APIRouter(prefix="/v1")
@@ -27,3 +28,4 @@ router.include_router(questions)
 router.include_router(news_router)
 router.include_router(startup)
 router.include_router(grants)
+router.include_router(passport)
