@@ -75,11 +75,11 @@ async def create_passport(
         db: Annotated[AsyncSession, Depends(async_get_db)],
 ):
     existing_passport = await crud_passport.get_by(db, user_uuid=user.get('uuid'))
-    if existing_passport:
-        raise HTTPException(
-            status_code=400,
-            detail="Passport already exists for this user"
-        )
+    # if existing_passport:
+    #     raise HTTPException(
+    #         status_code=400,
+    #         detail="Passport already exists for this user"
+    #     )
     passport_data.user_uuid = user.get('uuid')
     return await crud_passport.create(db, passport_data)
 
