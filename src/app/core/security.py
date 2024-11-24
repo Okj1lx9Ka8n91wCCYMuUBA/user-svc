@@ -42,7 +42,7 @@ async def authenticate_user(identifier: str, password: str, db: AsyncSession) ->
     if not db_user:
         return False
 
-    elif not verify_password(password, db_user.get("hashed_password")):  # TODO: set async for production
+    elif not await verify_password(password, db_user.get("hashed_password")):
         return False
 
     return db_user
