@@ -6,4 +6,4 @@ from .grant_questions import GrantQuestions
 from .startup import Startup
 from .program import Program
 from .parsed_data.grant import Grant
-# from .docs.passport import Passport
+from .docs.passport import Passport

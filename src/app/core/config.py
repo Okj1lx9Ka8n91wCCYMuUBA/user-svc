@@ -96,6 +96,10 @@ class DefaultRateLimitSettings(BaseSettings):
     DEFAULT_RATE_LIMIT_PERIOD: int = config("DEFAULT_RATE_LIMIT_PERIOD", default=3600)
 
 
+class GenAIModelSettings(BaseSettings):
+    GEMINI_API_KEY: str = config("GEMINI_API_KEY", default=None)
+
+
 class EnvironmentOption(Enum):
     LOCAL = "local"
     STAGING = "staging"
@@ -117,6 +121,7 @@ class Settings(
     RedisQueueSettings,
     RedisRateLimiterSettings,
     DefaultRateLimitSettings,
+    GenAIModelSettings,
     EnvironmentSettings,
 ):
     pass
